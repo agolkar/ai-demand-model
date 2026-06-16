@@ -43,7 +43,7 @@ export default function App() {
   const space = useMemo(() => compareSpace(rows, params), [rows, params]);
 
   const last = rows[rows.length - 1];
-  const beYear = breakeven.allocatableBreakevenYear;
+  const beYear = breakeven.breakevenYear;
 
   return (
     <div className="app">
@@ -101,12 +101,12 @@ export default function App() {
           </div>
         </div>
         <div className={`card ${beYear ? "card-alert" : "card-ok"}`}>
-          <div className="card-label">Breakeven (AI budget)</div>
+          <div className="card-label">Headroom breakeven</div>
           <div className="card-value">{beYear ?? "—"}</div>
           <div className="card-sub">
             {beYear
-              ? `demand exceeds the ${params.allocatableSharePct}% slice of grid`
-              : "within budget through horizon"}
+              ? "AI demand exceeds spare generation"
+              : "within headroom through horizon"}
           </div>
         </div>
         <div className="card">
@@ -151,8 +151,8 @@ export default function App() {
           </ChartCard>
 
           <ChartCard
-            title="Steps 2–4 — Energy demand vs Earth's supply"
-            desc="Stacked AI energy demand by segment (TWh/yr). The dashed green line is the slice of global electricity society allocates to AI; the yellow line is total global generation, growing every year. Where the demand stack crosses green is the breakeven — the start of the gap that space could serve."
+            title="Steps 2–4 — Energy demand vs Earth's headroom"
+            desc="Stacked AI energy demand by segment (TWh/yr). The dashed green line is the headroom genuinely free for AI: total generation minus what the rest of the economy already uses. The yellow line is total generation for context. Where the demand stack crosses green is the breakeven — the year the world cannot generate enough to serve both the economy and AI."
           >
             <div className="chart-toolbar">
               <label className="toggle">
@@ -180,7 +180,7 @@ export default function App() {
                 <Area type="monotone" dataKey="consumerTWh" name="Consumer" stackId="1" stroke={COLORS.consumer} fill={COLORS.consumer} fillOpacity={0.55} />
                 <Area type="monotone" dataKey="corpTWh" name="Corporate" stackId="1" stroke={COLORS.corp} fill={COLORS.corp} fillOpacity={0.55} />
                 <Area type="monotone" dataKey="agentTWh" name="Agents" stackId="1" stroke={COLORS.agent} fill={COLORS.agent} fillOpacity={0.55} />
-                <Line type="monotone" dataKey="aiAllocatableTWh" name="AI-allocatable supply" stroke={COLORS.allocatable} strokeWidth={2.5} dot={false} strokeDasharray="6 3" />
+                <Line type="monotone" dataKey="headroomTWh" name="Headroom for AI (gen − non-AI)" stroke={COLORS.allocatable} strokeWidth={2.5} dot={false} strokeDasharray="6 3" />
                 {showGen && (
                   <Line type="monotone" dataKey="globalSupplyTWh" name="Total global generation" stroke={COLORS.supply} strokeWidth={2.5} dot={false} />
                 )}
@@ -188,19 +188,19 @@ export default function App() {
               </ComposedChart>
             </ResponsiveContainer>
             <p className="chart-foot">
-              Two breakevens matter. First the demand stack crosses the green
-              line: AI outruns the share society will spare it (the market signal
-              for new capacity, including space). Later it can cross the yellow
-              line: desired AI compute outruns <em>all</em> of Earth's
-              generation. Whether and when that second crossing happens is set
-              mainly by the agent fleet ceiling and the Jevons rebound, not by
-              anything fixed — they are yours to set.
+              The green headroom line is the honest supply constraint: total
+              generation minus the electricity homes, industry, and transport
+              already consume. Today that headroom is tiny, because generation is
+              almost fully spoken for. It only grows if generation is built faster
+              than non-AI demand. When the AI stack crosses green, the world is
+              short of power and the gap above green is the market faster Earth
+              buildout or space data centers would serve.
             </p>
           </ChartCard>
 
           <ChartCard
             title="Step 5 — The unserved gap"
-            desc="Demand beyond the AI-allocatable budget. This is the market that faster Earth buildout or space data centers would have to serve."
+            desc="AI demand beyond the headroom (generation minus non-AI demand). This is the market that faster Earth buildout or space data centers would have to serve."
           >
             <ResponsiveContainer width="100%" height={260}>
               <AreaChart data={rows} margin={{ top: 10, right: 16, bottom: 0, left: 10 }}>
@@ -309,9 +309,9 @@ function SpacePanel({ space, params }: { space: ReturnType<typeof compareSpace>;
   if (space.gapTWhAtEnd <= 0) {
     return (
       <div className="space-empty">
-        No unserved gap in the final year under these assumptions. Earth's
-        allocatable supply keeps up, so there is no demand for space capacity yet.
-        Raise adoption, agent intensity, or lower the allocatable share to create one.
+        No unserved gap over the horizon under these assumptions. Earth's headroom
+        keeps up with AI demand, so there is no demand for space capacity yet.
+        Raise agents per human, agent intensity, or non-AI demand growth to create one.
       </div>
     );
   }

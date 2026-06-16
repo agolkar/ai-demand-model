@@ -51,7 +51,11 @@ export const DEFAULTS: Params = {
 
   globalGenerationTWh: 30664,
   supplyGrowthPct: 3.0,
-  allocatableSharePct: 10,
+  // Non-AI demand today ≈ all of current generation (AI is ~0.1% in 2026), so
+  // there is almost no spare headroom at the start. Headroom for AI only opens
+  // as generation is built faster than non-AI demand grows.
+  baselineNonAiTWh: 30600,
+  baselineGrowthPct: 2.0,
 
   earthCostPerW: 3.0,
   launchCostPerKg: 1000,
@@ -215,12 +219,20 @@ export const ASSUMPTIONS: AssumptionNote[] = [
     sourceUrl: "https://www.iea.org/reports/global-energy-review-2025/electricity",
   },
   {
-    key: "allocatableSharePct",
-    label: "Share allocatable to AI",
-    unit: "%",
-    note: "Data centers are ~1.5% of electricity today, ~3% by 2030. The cap is how far society will let AI go. Policy knob.",
-    source: "IEA Energy & AI 2025",
-    sourceUrl: "https://www.iea.org/reports/energy-and-ai/executive-summary",
+    key: "baselineNonAiTWh",
+    label: "Baseline non-AI demand",
+    unit: "TWh/yr",
+    note: "Electricity everything except AI uses: homes, industry, transport. Set near today's total generation because AI is only ~0.1% of it in 2026, so the world has almost no spare power today. AI must compete for the headroom that future buildout creates.",
+    source: "Ember/IEA generation ≈ consumption",
+    sourceUrl: "https://ember-energy.org/latest-insights/global-electricity-review-2025/2024-in-review/",
+  },
+  {
+    key: "baselineGrowthPct",
+    label: "Non-AI demand growth",
+    unit: "%/yr",
+    note: "How fast non-AI electricity demand grows (electrification of heat, transport, industry). Historically ~2%/yr. If this exceeds supply growth, headroom for AI shrinks to zero.",
+    source: "IEA electricity demand trends",
+    sourceUrl: "https://www.iea.org/reports/global-energy-review-2025/electricity",
   },
   {
     key: "earthCostPerW",

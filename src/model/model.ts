@@ -94,10 +94,13 @@ export function runModel(p: Params): YearRow[] {
     const totalDemandTWh = consumerTWh + corpTWh + agentTWh;
 
     // --- Supply ---------------------------------------------------------
+    // Generation, the non-AI demand it must serve first, and the headroom that
+    // is genuinely free for AI (what is left after the rest of the economy).
     const globalSupplyTWh = p.globalGenerationTWh * Math.pow(1 + p.supplyGrowthPct / 100, t);
-    const aiAllocatableTWh = globalSupplyTWh * (p.allocatableSharePct / 100);
+    const baselineDemandTWh = p.baselineNonAiTWh * Math.pow(1 + p.baselineGrowthPct / 100, t);
+    const headroomTWh = Math.max(0, globalSupplyTWh - baselineDemandTWh);
 
-    const unservedTWh = Math.max(0, totalDemandTWh - aiAllocatableTWh);
+    const unservedTWh = Math.max(0, totalDemandTWh - headroomTWh);
     const demandShareOfGlobalPct = (totalDemandTWh / globalSupplyTWh) * 100;
 
     rows.push({
@@ -110,7 +113,8 @@ export function runModel(p: Params): YearRow[] {
       agentTWh,
       totalDemandTWh,
       globalSupplyTWh,
-      aiAllocatableTWh,
+      baselineDemandTWh,
+      headroomTWh,
       unservedTWh,
       demandShareOfGlobalPct,
     });
@@ -119,17 +123,14 @@ export function runModel(p: Params): YearRow[] {
 }
 
 export function findBreakeven(rows: YearRow[]): BreakevenResult {
-  let allocatableBreakevenYear: number | null = null;
-  let totalSupplyBreakevenYear: number | null = null;
+  let breakevenYear: number | null = null;
   for (const r of rows) {
-    if (allocatableBreakevenYear === null && r.totalDemandTWh > r.aiAllocatableTWh) {
-      allocatableBreakevenYear = r.year;
-    }
-    if (totalSupplyBreakevenYear === null && r.totalDemandTWh > r.globalSupplyTWh) {
-      totalSupplyBreakevenYear = r.year;
+    if (breakevenYear === null && r.totalDemandTWh > r.headroomTWh) {
+      breakevenYear = r.year;
+      break;
     }
   }
-  return { allocatableBreakevenYear, totalSupplyBreakevenYear };
+  return { breakevenYear };
 }
 
 /**

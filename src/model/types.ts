@@ -55,7 +55,10 @@ export interface Params {
   // --- Energy supply (Earth) ---------------------------------------------
   globalGenerationTWh: number; // total global electricity generation at baseYear
   supplyGrowthPct: number; // annual % growth of global generation
-  allocatableSharePct: number; // max % of global electricity society devotes to AI
+  // Baseline non-AI electricity demand: homes, industry, transport, everything
+  // that is not AI. AI competes for the headroom left after this is served.
+  baselineNonAiTWh: number; // non-AI electricity demand at baseYear
+  baselineGrowthPct: number; // annual % growth of non-AI demand
 
   // --- Earth vs Space economics ------------------------------------------
   earthCostPerW: number; // $/W all-in to add Earth clean generation + data center
@@ -78,17 +81,17 @@ export interface YearRow {
   totalDemandTWh: number;
   // supply, TWh/yr
   globalSupplyTWh: number;
-  aiAllocatableTWh: number;
+  baselineDemandTWh: number; // non-AI demand this year
+  headroomTWh: number; // generation minus non-AI demand: what is actually free for AI
   // gap
-  unservedTWh: number; // demand beyond the AI-allocatable budget
+  unservedTWh: number; // AI demand beyond the headroom
   demandShareOfGlobalPct: number; // total AI demand as % of all global electricity
 }
 
 export interface BreakevenResult {
-  // first year AI demand exceeds the AI-allocatable electricity budget
-  allocatableBreakevenYear: number | null;
-  // first year AI demand exceeds ALL global electricity generation
-  totalSupplyBreakevenYear: number | null;
+  // first year AI demand exceeds the headroom (generation minus non-AI demand),
+  // i.e. the world cannot generate enough to serve both the economy and AI
+  breakevenYear: number | null;
 }
 
 export interface SpaceComparison {
