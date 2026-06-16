@@ -47,13 +47,41 @@ export default function App() {
 
   return (
     <div className="app">
+      <div className="ai-banner" role="alert">
+        <span className="ai-banner-icon">⚠</span>
+        <span>
+          This model has been AI-generated (Claude Opus 4.8, Anthropic, under the
+          supervision of A. Golkar) and is currently undergoing verification. Do
+          not trust the model results unless manually verified.
+        </span>
+      </div>
+
       <header className="hero">
+        <div className="byline">
+          <span>© 2026 Alessandro Golkar, Technical University of Munich</span>
+          <span className="byline-sep">·</span>
+          <span>
+            bugs, comments or feedback:{" "}
+            <a href="mailto:golkar@tum.de">golkar@tum.de</a>
+          </span>
+        </div>
         <h1>The AI Energy Wall</h1>
         <p className="subtitle">
           When does AI demand outrun the electricity Earth can spare for it, and
           could space data centers close the gap? Every assumption below is a
           knob. Move it and watch the curves respond.
         </p>
+        <nav className="header-links">
+          <a href="https://github.com/agolkar/ai-demand-model" target="_blank" rel="noreferrer">
+            GitHub repository
+          </a>
+          <a href="/explainer.html" target="_blank" rel="noreferrer">
+            Plain-language explainer
+          </a>
+          <a href="/technical-report.pdf" target="_blank" rel="noreferrer">
+            Technical report (PDF)
+          </a>
+        </nav>
       </header>
 
       {/* ---- Headline result cards ---- */}
