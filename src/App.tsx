@@ -54,7 +54,7 @@ export default function App() {
     { q: "World population (base year)", model: `${fmtNum(params.worldPopulationB, 1)} B`, bench: "8.3 B (2026)", src: "UN / Worldometer" },
     { q: "Energy per AI query", model: `${fmtNum(params.whPerQuery, 2)} Wh`, bench: "0.24–0.34 Wh", src: "Epoch AI; OpenAI" },
     { q: "ChatGPT inference (2.5B queries/day)", model: `${fmtNum(chatgptTWh, 2)} TWh/yr`, bench: "~0.3 TWh/yr", src: "OpenAI disclosures" },
-    { q: `Total AI electricity (${params.baseYear})`, model: `${fmtNum(rows[0].totalDemandTWh, 0)} TWh`, bench: "AI subset of ~415 TWh all data centers", src: "IEA 2024" },
+    { q: `AI electricity, ${params.baseYear} (AI only)`, model: `~${fmtNum(rows[0].totalDemandTWh, 0)} TWh`, bench: "~40–85 TWh (AI ≈10–20% of 415 TWh all data centers)", src: "IEA 2024" },
   ];
 
   return (
@@ -343,9 +343,11 @@ export default function App() {
         </table>
         <p className="val-note">
           The first four rows are exact anchors or direct cross-checks. The AI
-          electricity row is AI-only, so it sits below the IEA's ~415 TWh for all
-          data centers (which also includes cloud, storage, and crypto); AI is the
-          fast-growing subset. Generation here is electricity, not primary energy
+          row compares like for like: the model's ~38 TWh is AI-only, against the
+          AI share (~10–20%) of the IEA's ~415 TWh for all data centers, not the
+          whole 415 TWh (which also includes cloud, storage, and crypto). The
+          model sits at the conservative end, partly because it folds training
+          into a 25% overhead. Generation here is electricity, not primary energy
           (see the units note above).
         </p>
       </section>
