@@ -36,6 +36,11 @@ export interface Params {
   agentGrowth: number; // logistic growth rate (per year)
   agentQueriesPerDay: number; // queries per agent per day (24/7 operation)
   agentIntensityMultiplier: number; // energy/query multiple vs a simple chat query
+  // Recursive sub-agent spawning: each agent orchestrates sub-agents, which
+  // orchestrate their own, forming a tree. Total instances = primary x
+  // (Z^(D+1)-1)/(Z-1), which compounds exponentially in depth D.
+  subAgentsPerAgent: number; // Z: sub-agents spawned per agent (branching factor)
+  agentRecursionDepth: number; // D: generations of sub-agents below the top level (0 = none)
 
   // --- Shared energy intensity -------------------------------------------
   whPerQuery: number; // compute energy of a simple text query, Wh

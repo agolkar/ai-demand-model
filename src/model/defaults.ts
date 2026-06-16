@@ -38,6 +38,10 @@ export const DEFAULTS: Params = {
   agentGrowth: 0.45,
   agentQueriesPerDay: 400,
   agentIntensityMultiplier: 10,
+  // Recursive sub-agents OFF by default (depth 0 = multiplier 1) so the central
+  // case is not inflated. Raise depth to explore the compounding eventuality.
+  subAgentsPerAgent: 3,
+  agentRecursionDepth: 0,
 
   whPerQuery: 0.3,
   pue: 1.25,
@@ -137,6 +141,18 @@ export const ASSUMPTIONS: AssumptionNote[] = [
     label: "Agent queries/day",
     unit: "queries",
     note: "Agents run continuously and chain many calls; hundreds of queries/day each. Estimate.",
+  },
+  {
+    key: "subAgentsPerAgent",
+    label: "Sub-agents per agent",
+    unit: "branching",
+    note: "Each agent can spawn sub-agents that spawn their own, recursively. With recursion depth D and branching Z, the live fleet multiplies by (Z^(D+1)-1)/(Z-1). Highly speculative.",
+  },
+  {
+    key: "agentRecursionDepth",
+    label: "Agent recursion depth",
+    unit: "levels",
+    note: "Generations of sub-agents below the top level. 0 = none (default, to avoid inflating the central case). Each level multiplies the fleet by the branching factor, so energy demand compounds EXPONENTIALLY: depth 4 at branching 3 is ~40x; depth 5 at branching 5 is ~780x. This is the wild-card that could dwarf every other assumption.",
   },
   {
     key: "agentIntensityMultiplier",

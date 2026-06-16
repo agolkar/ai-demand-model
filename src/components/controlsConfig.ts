@@ -57,6 +57,8 @@ export const CONTROL_GROUPS: ControlGroup[] = [
       { param: "agentGrowth", label: "Fleet growth speed", min: 0.1, max: 1, step: 0.05, unit: "/yr", help: "How fast the agent fleet compounds toward its ceiling (set by agents-per-human)." },
       { param: "agentQueriesPerDay", label: "Queries / agent / day", min: 50, max: 2000, step: 50, help: "Queries each agent issues per day. Agents run 24/7 and chain many calls per task." },
       { param: "agentIntensityMultiplier", label: "Agent energy multiple", min: 1, max: 40, step: 1, unit: "x", help: "Energy per agent query versus a simple chat query. Reasoning and multi-step work cost an order of magnitude more." },
+      { param: "subAgentsPerAgent", label: "Sub-agents per agent", min: 1, max: 8, step: 0.5, unit: "Z", help: "Branching factor: how many sub-agents each agent spawns. Combined with recursion depth, the live fleet multiplies as a tree. Only bites when recursion depth is above 0." },
+      { param: "agentRecursionDepth", label: "Recursion depth", min: 0, max: 5, step: 1, unit: "levels", help: "Generations of sub-agents below the top level. 0 = none (default). Each added level multiplies the whole fleet by the branching factor, so demand compounds EXPONENTIALLY: depth 4 at branching 3 ≈ 40x, depth 5 at branching 5 ≈ 780x. The wild-card that can dwarf every other knob." },
     ],
   },
   {

@@ -32,6 +32,18 @@ export function logistic(
   return ceiling / (1 + Math.exp(-rate * (t - x0)));
 }
 
+/**
+ * Tree multiplier for recursive sub-agent spawning. Each agent spawns Z
+ * sub-agents over D generations, so the total instance count is the geometric
+ * series 1 + Z + Z^2 + ... + Z^D = (Z^(D+1) - 1)/(Z - 1). Grows exponentially
+ * in depth D. Depth 0 returns 1 (no recursion).
+ */
+export function recursionMultiplier(z: number, depth: number): number {
+  if (depth <= 0) return 1;
+  if (Math.abs(z - 1) < 1e-9) return depth + 1;
+  return (Math.pow(z, depth + 1) - 1) / (z - 1);
+}
+
 /** Energy (TWh/yr) for a population of "units" each issuing queries/day. */
 function segmentEnergyTWh(
   units: number, // absolute count of users/agents
@@ -70,7 +82,10 @@ export function runModel(p: Params): YearRow[] {
     // agents-per-human against the base population (a transparent sizing of the
     // ceiling; the fleet can far exceed the number of people).
     const agentCeilingB = p.agentsPerHuman * p.worldPopulationB;
-    const agentsB = logistic(p.agentFleet0B, agentCeilingB, p.agentGrowth, t);
+    const primaryAgentsB = logistic(p.agentFleet0B, agentCeilingB, p.agentGrowth, t);
+    // Recursive sub-agents multiply the live fleet as a branching tree.
+    const treeMultiplier = recursionMultiplier(p.subAgentsPerAgent, p.agentRecursionDepth);
+    const agentsB = primaryAgentsB * treeMultiplier;
 
     // --- Energy by segment (convert billions -> absolute via 1e9) -------
     const consumerTWh = segmentEnergyTWh(consumerUsersB * 1e9, p.consumerQueriesPerDay, wh, p.pue, p.trainingOverheadPct, 1);
