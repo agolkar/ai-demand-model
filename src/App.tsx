@@ -47,6 +47,16 @@ export default function App() {
   const agentVsConsumer = last.consumerTWh > 0 ? Math.round(last.agentTWh / last.consumerTWh) : 0;
   const agentVsCorp = last.corpTWh > 0 ? Math.round(last.agentTWh / last.corpTWh) : 0;
 
+  // Live validation against published benchmarks (at current settings).
+  const chatgptTWh = (2.5e9 * params.whPerQuery * 365) / 1e12; // ChatGPT scale: 2.5B queries/day
+  const validations = [
+    { q: `Global electricity generation (${params.baseYear} base)`, model: `${fmtNum(params.globalGenerationTWh, 0)} TWh`, bench: "30,664 TWh (2024)", src: "Ember 2025" },
+    { q: "World population (base year)", model: `${fmtNum(params.worldPopulationB, 1)} B`, bench: "8.3 B (2026)", src: "UN / Worldometer" },
+    { q: "Energy per AI query", model: `${fmtNum(params.whPerQuery, 2)} Wh`, bench: "0.24–0.34 Wh", src: "Epoch AI; OpenAI" },
+    { q: "ChatGPT inference (2.5B queries/day)", model: `${fmtNum(chatgptTWh, 2)} TWh/yr`, bench: "~0.3 TWh/yr", src: "OpenAI disclosures" },
+    { q: `Total AI electricity (${params.baseYear})`, model: `${fmtNum(rows[0].totalDemandTWh, 0)} TWh`, bench: "AI subset of ~415 TWh all data centers", src: "IEA 2024" },
+  ];
+
   return (
     <div className="app">
       <div className="ai-banner" role="alert">
@@ -185,7 +195,7 @@ export default function App() {
                 <Area type="monotone" dataKey="consumerTWh" name="AI · consumer" stackId="1" stroke={COLORS.consumer} fill={COLORS.consumer} fillOpacity={0.7} />
                 <Area type="monotone" dataKey="corpTWh" name="AI · corporate" stackId="1" stroke={COLORS.corp} fill={COLORS.corp} fillOpacity={0.7} />
                 <Area type="monotone" dataKey="agentTWh" name="AI · agents" stackId="1" stroke={COLORS.agent} fill={COLORS.agent} fillOpacity={0.7} />
-                <Line type="monotone" dataKey="globalSupplyTWh" name="Total generation" stroke={COLORS.supply} strokeWidth={2.5} dot={false} />
+                <Line type="monotone" dataKey="globalSupplyTWh" name="Total electricity generation" stroke={COLORS.supply} strokeWidth={2.5} dot={false} />
                 {crossingX && <ReferenceLine x={crossingX} stroke="#ef4444" strokeDasharray="4 4" label={{ value: `breakeven ${beYear}`, fill: "#ef4444", position: "top", fontSize: 12 }} />}
               </ComposedChart>
             </ResponsiveContainer>
@@ -197,6 +207,14 @@ export default function App() {
               total demand exceeds what the planet generates; the part of the
               stack above the yellow line is the unserved gap that faster Earth
               buildout or space data centers would have to serve.
+            </p>
+            <p className="chart-foot" style={{ borderTop: "none", paddingTop: 0 }}>
+              Note on units: every figure here is <strong>electricity</strong>
+              (~30,664 TWh generated globally in 2024, Ember). That is far below
+              total <em>primary</em> energy (~180,000 TWh, the Our World in Data
+              figure), which also counts oil, gas, and coal burned for transport,
+              heat, and industry. AI data centers run on electricity, so
+              electricity generation is the correct and binding supply here.
             </p>
           </ChartCard>
 
@@ -297,6 +315,40 @@ export default function App() {
           ))}
         </aside>
       </div>
+
+      {/* ---- Validation against benchmarks ---- */}
+      <section className="validation">
+        <h2>Validation against known benchmarks</h2>
+        <p className="sources-intro">
+          A model is only as trustworthy as its anchors. At the default settings,
+          the model reproduces independently published figures for the present
+          day. The near-term AI numbers are order-of-magnitude consistent with the
+          IEA; the long-run trajectory beyond ~2030 is a scenario you steer, not a
+          benchmark.
+        </p>
+        <table className="val-table">
+          <thead>
+            <tr><th>Benchmark</th><th>This model</th><th>Published</th><th>Source</th></tr>
+          </thead>
+          <tbody>
+            {validations.map((v) => (
+              <tr key={v.q}>
+                <td>{v.q}</td>
+                <td className="val-model">{v.model}</td>
+                <td>{v.bench}</td>
+                <td className="val-src">{v.src}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="val-note">
+          The first four rows are exact anchors or direct cross-checks. The AI
+          electricity row is AI-only, so it sits below the IEA's ~415 TWh for all
+          data centers (which also includes cloud, storage, and crypto); AI is the
+          fast-growing subset. Generation here is electricity, not primary energy
+          (see the units note above).
+        </p>
+      </section>
 
       {/* ---- Sources / provenance ---- */}
       <section className="sources">

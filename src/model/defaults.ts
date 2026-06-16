@@ -208,7 +208,7 @@ export const ASSUMPTIONS: AssumptionNote[] = [
     key: "globalGenerationTWh",
     label: "Global electricity generation",
     unit: "TWh/yr",
-    note: "30,664 TWh in 2024 (crossed 30,000 TWh for the first time).",
+    note: "30,664 TWh in 2024 (crossed 30,000 TWh for the first time). This is ELECTRICITY, not total primary energy (~180,000 TWh, which includes oil/gas/coal for transport, heat, and industry). AI runs on electricity, so electricity is the right and binding denominator.",
     source: "Ember Global Electricity Review 2025",
     sourceUrl: "https://ember-energy.org/latest-insights/global-electricity-review-2025/2024-in-review/",
   },
