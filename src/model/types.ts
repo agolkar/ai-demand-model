@@ -56,9 +56,10 @@ export interface Params {
   globalGenerationTWh: number; // total global electricity generation at baseYear
   supplyGrowthPct: number; // annual % growth of global generation
   // Baseline non-AI electricity demand: homes, industry, transport, everything
-  // that is not AI. AI competes for the headroom left after this is served.
+  // that is not AI. It scales with population AND a per-capita electrification
+  // trend, so total non-AI growth = population growth + per-capita growth.
   baselineNonAiTWh: number; // non-AI electricity demand at baseYear
-  baselineGrowthPct: number; // annual % growth of non-AI demand
+  baselinePerCapitaGrowthPct: number; // annual % growth in non-AI demand PER PERSON (electrification)
 
   // --- Earth vs Space economics ------------------------------------------
   earthCostPerW: number; // $/W all-in to add Earth clean generation + data center
@@ -89,9 +90,10 @@ export interface YearRow {
 }
 
 export interface BreakevenResult {
-  // first year AI demand exceeds the headroom (generation minus non-AI demand),
-  // i.e. the world cannot generate enough to serve both the economy and AI
+  // year total demand (non-AI + AI) crosses generation, rounded for display
   breakevenYear: number | null;
+  // exact interpolated crossing year (fractional) for placing the chart marker
+  crossingX: number | null;
 }
 
 export interface SpaceComparison {

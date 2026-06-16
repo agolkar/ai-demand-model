@@ -97,7 +97,11 @@ export function runModel(p: Params): YearRow[] {
     // Generation, the non-AI demand it must serve first, and the headroom that
     // is genuinely free for AI (what is left after the rest of the economy).
     const globalSupplyTWh = p.globalGenerationTWh * Math.pow(1 + p.supplyGrowthPct / 100, t);
-    const baselineDemandTWh = p.baselineNonAiTWh * Math.pow(1 + p.baselineGrowthPct / 100, t);
+    // Non-AI demand scales with population AND per-capita electrification.
+    const baselineDemandTWh =
+      p.baselineNonAiTWh *
+      Math.pow(1 + p.populationGrowthPct / 100, t) *
+      Math.pow(1 + p.baselinePerCapitaGrowthPct / 100, t);
     const headroomTWh = Math.max(0, globalSupplyTWh - baselineDemandTWh);
 
     const unservedTWh = Math.max(0, totalDemandTWh - headroomTWh);
@@ -123,14 +127,23 @@ export function runModel(p: Params): YearRow[] {
 }
 
 export function findBreakeven(rows: YearRow[]): BreakevenResult {
-  let breakevenYear: number | null = null;
-  for (const r of rows) {
-    if (breakevenYear === null && r.totalDemandTWh > r.headroomTWh) {
-      breakevenYear = r.year;
-      break;
+  // Crossing of total demand (non-AI + AI) and generation, interpolated between
+  // years so the marker sits exactly where the stack meets the supply line.
+  const total = (r: YearRow) => r.baselineDemandTWh + r.totalDemandTWh;
+  if (rows.length && total(rows[0]) > rows[0].globalSupplyTWh) {
+    return { breakevenYear: rows[0].year, crossingX: rows[0].year };
+  }
+  for (let i = 1; i < rows.length; i++) {
+    const a = rows[i - 1];
+    const b = rows[i];
+    const da = total(a) - a.globalSupplyTWh;
+    const db = total(b) - b.globalSupplyTWh;
+    if (da <= 0 && db > 0) {
+      const crossingX = a.year + (0 - da) / (db - da);
+      return { breakevenYear: Math.round(crossingX), crossingX };
     }
   }
-  return { breakevenYear };
+  return { breakevenYear: null, crossingX: null };
 }
 
 /**

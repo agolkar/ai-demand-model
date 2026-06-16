@@ -55,7 +55,9 @@ export const DEFAULTS: Params = {
   // there is almost no spare headroom at the start. Headroom for AI only opens
   // as generation is built faster than non-AI demand grows.
   baselineNonAiTWh: 30600,
-  baselineGrowthPct: 2.0,
+  // Per-capita electrification growth. Combined with ~0.8%/yr population growth
+  // this gives ~2%/yr total non-AI demand growth, matching the historical trend.
+  baselinePerCapitaGrowthPct: 1.2,
 
   earthCostPerW: 3.0,
   launchCostPerKg: 1000,
@@ -222,15 +224,15 @@ export const ASSUMPTIONS: AssumptionNote[] = [
     key: "baselineNonAiTWh",
     label: "Baseline non-AI demand",
     unit: "TWh/yr",
-    note: "Electricity everything except AI uses: homes, industry, transport. Set near today's total generation because AI is only ~0.1% of it in 2026, so the world has almost no spare power today. Shown as the base layer of the demand chart, with AI stacked on top against the generation line.",
+    note: "Electricity everything except AI uses: homes, industry, transport. Set near today's total generation because AI is only ~0.1% of it in 2026, so the world has almost no spare power today. Grows with population and per-capita electrification. Shown as the base layer of the demand chart.",
     source: "Ember/IEA generation ≈ consumption",
     sourceUrl: "https://ember-energy.org/latest-insights/global-electricity-review-2025/2024-in-review/",
   },
   {
-    key: "baselineGrowthPct",
-    label: "Non-AI demand growth",
+    key: "baselinePerCapitaGrowthPct",
+    label: "Non-AI per-capita growth",
     unit: "%/yr",
-    note: "How fast non-AI electricity demand grows (electrification of heat, transport, industry). Historically ~2%/yr. The faster it grows, the sooner total demand (non-AI plus AI) outruns generation.",
+    note: "Growth in non-AI electricity use PER PERSON (electrification of heat, transport, industry). Total non-AI demand also rises with population, so total non-AI growth = population growth + this. ~1.2%/yr per-capita plus ~0.8%/yr population gives the ~2%/yr historical total.",
     source: "IEA electricity demand trends",
     sourceUrl: "https://www.iea.org/reports/global-energy-review-2025/electricity",
   },

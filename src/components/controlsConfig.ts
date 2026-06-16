@@ -79,7 +79,7 @@ export const CONTROL_GROUPS: ControlGroup[] = [
       { param: "globalGenerationTWh", label: "Generation today", min: 25000, max: 40000, step: 500, unit: "TWh", help: "Total world electricity generation at the start year (30,664 TWh in 2024)." },
       { param: "supplyGrowthPct", label: "Supply growth", min: 1, max: 8, step: 0.25, unit: "%/yr", help: "Annual growth of global electricity generation (4% in 2024; ~2.6% 2010–2023 average)." },
       { param: "baselineNonAiTWh", label: "Non-AI demand today", min: 20000, max: 32000, step: 200, unit: "TWh", help: "Electricity everything except AI uses today: homes, industry, transport. Near total generation, because AI is only ~0.1% of it now. It is the base layer of the demand chart; AI stacks on top." },
-      { param: "baselineGrowthPct", label: "Non-AI demand growth", min: 0, max: 6, step: 0.25, unit: "%/yr", help: "How fast non-AI demand grows (electrification of heat, transport, industry). The faster it grows, the sooner total demand outruns generation." },
+      { param: "baselinePerCapitaGrowthPct", label: "Non-AI per-capita growth", min: 0, max: 5, step: 0.25, unit: "%/yr", help: "Growth in non-AI electricity use per person (electrification of heat, transport, industry). Total non-AI demand also rises with population, so it responds to the population growth knob too." },
     ],
   },
   {

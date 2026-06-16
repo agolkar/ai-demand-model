@@ -43,6 +43,9 @@ export default function App() {
 
   const last = rows[rows.length - 1];
   const beYear = breakeven.breakevenYear;
+  const crossingX = breakeven.crossingX;
+  const agentVsConsumer = last.consumerTWh > 0 ? Math.round(last.agentTWh / last.consumerTWh) : 0;
+  const agentVsCorp = last.corpTWh > 0 ? Math.round(last.agentTWh / last.corpTWh) : 0;
 
   return (
     <div className="app">
@@ -126,8 +129,8 @@ export default function App() {
             title="Step 1 — Who (and what) is using AI?"
             desc="Adoption as an S-curve for each segment. Consumers and workers are bounded by human headcount (billions of people). Agents are a compute-driven fleet (billions of running instances) decoupled from headcount, so they overtake and dwarf the human segments. Log scale, so every segment stays visible across orders of magnitude."
           >
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={rows} margin={{ top: 10, right: 16, bottom: 0, left: 0 }}>
+            <ResponsiveContainer width="100%" height={330}>
+              <LineChart data={rows} margin={{ top: 10, right: 20, bottom: 0, left: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
                 <XAxis dataKey="year" stroke="#94a3b8" />
                 <YAxis
@@ -159,10 +162,16 @@ export default function App() {
                 Log scale
               </label>
             </div>
-            <ResponsiveContainer width="100%" height={360}>
-              <ComposedChart data={rows} margin={{ top: 10, right: 16, bottom: 0, left: 16 }}>
+            <ResponsiveContainer width="100%" height={440}>
+              <ComposedChart data={rows} margin={{ top: 10, right: 20, bottom: 0, left: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                <XAxis dataKey="year" stroke="#94a3b8" />
+                <XAxis
+                  dataKey="year"
+                  type="number"
+                  domain={[params.baseYear, params.endYear]}
+                  allowDecimals={false}
+                  stroke="#94a3b8"
+                />
                 <YAxis
                   stroke="#94a3b8"
                   scale={logScale ? "log" : "auto"}
@@ -173,20 +182,65 @@ export default function App() {
                 <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => fmtEnergy(v)} />
                 <Legend />
                 <Area type="monotone" dataKey="baselineDemandTWh" name="Non-AI demand" stackId="1" stroke={COLORS.baseline} fill={COLORS.baseline} fillOpacity={0.45} />
-                <Area type="monotone" dataKey="consumerTWh" name="AI · consumer" stackId="1" stroke={COLORS.consumer} fill={COLORS.consumer} fillOpacity={0.6} />
-                <Area type="monotone" dataKey="corpTWh" name="AI · corporate" stackId="1" stroke={COLORS.corp} fill={COLORS.corp} fillOpacity={0.6} />
-                <Area type="monotone" dataKey="agentTWh" name="AI · agents" stackId="1" stroke={COLORS.agent} fill={COLORS.agent} fillOpacity={0.6} />
+                <Area type="monotone" dataKey="consumerTWh" name="AI · consumer" stackId="1" stroke={COLORS.consumer} fill={COLORS.consumer} fillOpacity={0.7} />
+                <Area type="monotone" dataKey="corpTWh" name="AI · corporate" stackId="1" stroke={COLORS.corp} fill={COLORS.corp} fillOpacity={0.7} />
+                <Area type="monotone" dataKey="agentTWh" name="AI · agents" stackId="1" stroke={COLORS.agent} fill={COLORS.agent} fillOpacity={0.7} />
                 <Line type="monotone" dataKey="globalSupplyTWh" name="Total generation" stroke={COLORS.supply} strokeWidth={2.5} dot={false} />
-                {beYear && <ReferenceLine x={beYear} stroke="#ef4444" strokeDasharray="4 4" label={{ value: `breakeven ${beYear}`, fill: "#ef4444", position: "top", fontSize: 12 }} />}
+                {crossingX && <ReferenceLine x={crossingX} stroke="#ef4444" strokeDasharray="4 4" label={{ value: `breakeven ${beYear}`, fill: "#ef4444", position: "top", fontSize: 12 }} />}
               </ComposedChart>
             </ResponsiveContainer>
             <p className="chart-foot">
-              Non-AI demand already fills almost the entire grid today, so AI is a
-              thin sliver on top at first. As the AI categories grow (agents
-              dominate), the stack climbs toward the generation line. The year it
-              crosses, total demand exceeds what the planet generates; the part of
-              the stack above the yellow line is the unserved gap that faster
-              Earth buildout or space data centers would have to serve.
+              Non-AI demand already fills almost the entire grid today, so the AI
+              categories are a thin band on top at first (see the category
+              breakdown below for a legible view). As AI grows, agents dominate
+              and the stack climbs toward the generation line. Where it crosses,
+              total demand exceeds what the planet generates; the part of the
+              stack above the yellow line is the unserved gap that faster Earth
+              buildout or space data centers would have to serve.
+            </p>
+          </ChartCard>
+
+          <ChartCard
+            title="AI energy by category — agents dwarf the rest"
+            desc="The AI portion on its own, on a linear scale so the dominance is honest: agents tower while consumer and corporate appear pinned to the floor. They are not zero, though. The magnifier inset zooms the bottom 0–60 TWh to show they are very much there."
+          >
+            <div className="chart-relative">
+              <ResponsiveContainer width="100%" height={360}>
+                <LineChart data={rows} margin={{ top: 10, right: 20, bottom: 0, left: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                  <XAxis dataKey="year" stroke="#94a3b8" />
+                  <YAxis stroke="#94a3b8" tickFormatter={(v) => (v >= 1000 ? `${fmtNum(v / 1000, 0)}k` : `${fmtNum(v, 0)}`)} />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => fmtEnergy(v)} />
+                  <Legend />
+                  <Line type="monotone" dataKey="consumerTWh" name="Consumer" stroke={COLORS.consumer} strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="corpTWh" name="Corporate" stroke={COLORS.corp} strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="agentTWh" name="Agents" stroke={COLORS.agent} strokeWidth={2.5} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+
+              <div className="inset">
+                <div className="inset-title">🔍 Magnifier · bottom 0–60 TWh</div>
+                <div className="inset-note">The slice the main chart flattens to nothing.</div>
+                <ResponsiveContainer width="100%" height={130}>
+                  <LineChart data={rows} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#243049" />
+                    <XAxis dataKey="year" stroke="#94a3b8" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
+                    <YAxis stroke="#94a3b8" domain={[0, 60]} allowDataOverflow tick={{ fontSize: 10 }} width={26} />
+                    <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => fmtEnergy(v)} />
+                    <Line type="monotone" dataKey="consumerTWh" name="Consumer" stroke={COLORS.consumer} strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="corpTWh" name="Corporate" stroke={COLORS.corp} strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="agentTWh" name="Agents" stroke={COLORS.agent} strokeWidth={2} dot={false} strokeDasharray="3 2" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+            <p className="chart-foot">
+              By {last.year}, agents consume about {fmtNum(agentVsConsumer, 0)}× the
+              electricity of all consumer AI and {fmtNum(agentVsCorp, 0)}× all
+              corporate AI. Consumer and corporate are bounded by human headcount;
+              agents are not, which is why the gap explodes. In the magnifier the
+              agent line (dashed) shoots off the top almost immediately, while
+              consumer and corporate stay legible below.
             </p>
           </ChartCard>
 
@@ -194,8 +248,8 @@ export default function App() {
             title="Step 5 — The unserved gap"
             desc="The part of total demand that exceeds generation: AI demand the planet cannot power once non-AI needs are met. This is the market that faster Earth buildout or space data centers would have to serve."
           >
-            <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={rows} margin={{ top: 10, right: 16, bottom: 0, left: 10 }}>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={rows} margin={{ top: 10, right: 20, bottom: 0, left: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
                 <XAxis dataKey="year" stroke="#94a3b8" />
                 <YAxis stroke="#94a3b8" tickFormatter={(v) => `${fmtNum(v / 1000, 0)}k`} />
