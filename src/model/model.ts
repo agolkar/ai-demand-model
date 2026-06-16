@@ -13,6 +13,9 @@ import type {
 
 const WH_PER_TWH = 1e12; // 1 TWh = 1e12 Wh
 const HOURS_PER_YEAR = 8760;
+// World population (billions) that the base-year non-AI demand is calibrated to.
+// 30,664 TWh / 8.3B ≈ 3,700 kWh per person, matching the global average.
+const REF_POP_B = 8.3;
 
 /**
  * Logistic (S-curve) adoption between a starting level and a ceiling.
@@ -97,9 +100,13 @@ export function runModel(p: Params): YearRow[] {
     // Generation, the non-AI demand it must serve first, and the headroom that
     // is genuinely free for AI (what is left after the rest of the economy).
     const globalSupplyTWh = p.globalGenerationTWh * Math.pow(1 + p.supplyGrowthPct / 100, t);
-    // Non-AI demand scales with population AND per-capita electrification.
+    // Non-AI demand = per-capita use x population. The entered "non-AI demand
+    // today" is calibrated to a reference population (REF_POP_B), so it scales
+    // with the population LEVEL knob as well as population growth and per-capita
+    // electrification over time.
     const baselineDemandTWh =
       p.baselineNonAiTWh *
+      (p.worldPopulationB / REF_POP_B) *
       Math.pow(1 + p.populationGrowthPct / 100, t) *
       Math.pow(1 + p.baselinePerCapitaGrowthPct / 100, t);
     const headroomTWh = Math.max(0, globalSupplyTWh - baselineDemandTWh);

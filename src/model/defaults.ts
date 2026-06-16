@@ -227,7 +227,7 @@ export const ASSUMPTIONS: AssumptionNote[] = [
     key: "baselineNonAiTWh",
     label: "Baseline non-AI demand",
     unit: "TWh/yr",
-    note: "Electricity everything except AI uses: homes, industry, transport. Set near today's total generation because AI is only ~0.1% of it in 2026, so the world has almost no spare power today. Grows with population and per-capita electrification. Shown as the base layer of the demand chart.",
+    note: "Electricity everything except AI uses: homes, industry, transport. Set near today's total generation because AI is only ~0.1% of it in 2026 (≈3,700 kWh per person at 8.3B). Scales with the population LEVEL and growth knobs plus per-capita electrification, so more people means more non-AI demand. Shown as the base layer of the demand chart.",
     source: "Ember/IEA generation ≈ consumption",
     sourceUrl: "https://ember-energy.org/latest-insights/global-electricity-review-2025/2024-in-review/",
   },

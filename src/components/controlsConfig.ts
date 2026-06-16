@@ -23,7 +23,7 @@ export const CONTROL_GROUPS: ControlGroup[] = [
     blurb: "The horizon, the human base, and how many agents each person runs.",
     sliders: [
       { param: "endYear", label: "Project to year", min: 2030, max: 2070, step: 1, help: "Last year the projection runs to." },
-      { param: "worldPopulationB", label: "World population", min: 7, max: 10, step: 0.1, unit: "B", help: "Total human population at the start year. The base that consumer demand and the agent ceiling scale from." },
+      { param: "worldPopulationB", label: "World population", min: 7, max: 10, step: 0.1, unit: "B", help: "Total human population at the start year. Drives consumer AI use, the agent ceiling, and non-AI electricity demand (more people means more of all three)." },
       { param: "populationGrowthPct", label: "Population growth", min: -0.5, max: 2, step: 0.1, unit: "%/yr", help: "Annual growth of population and workforce, compounding over time." },
       { param: "agentsPerHuman", label: "Agents per human", min: 0.5, max: 100, step: 0.5, unit: "/person", help: "Active AI agents per person at saturation — this sets the agent fleet ceiling. Agents are software that spawns software, so it can far exceed 1. THE swing variable: ~1/person keeps AI a small slice of the grid; ~12/person can push AI past all of Earth's generation by the 2040s. Deeply uncertain." },
     ],
@@ -78,7 +78,7 @@ export const CONTROL_GROUPS: ControlGroup[] = [
     sliders: [
       { param: "globalGenerationTWh", label: "Generation today", min: 25000, max: 40000, step: 500, unit: "TWh", help: "Total world electricity generation at the start year (30,664 TWh in 2024)." },
       { param: "supplyGrowthPct", label: "Supply growth", min: 1, max: 8, step: 0.25, unit: "%/yr", help: "Annual growth of global electricity generation (4% in 2024; ~2.6% 2010–2023 average)." },
-      { param: "baselineNonAiTWh", label: "Non-AI demand today", min: 20000, max: 32000, step: 200, unit: "TWh", help: "Electricity everything except AI uses today: homes, industry, transport. Near total generation, because AI is only ~0.1% of it now. It is the base layer of the demand chart; AI stacks on top." },
+      { param: "baselineNonAiTWh", label: "Non-AI demand today", min: 20000, max: 32000, step: 200, unit: "TWh", help: "Electricity everything except AI uses today: homes, industry, transport (≈3,700 kWh/person at 8.3B). It scales with the population level and growth knobs, so raising world population raises non-AI demand. The base layer of the demand chart; AI stacks on top." },
       { param: "baselinePerCapitaGrowthPct", label: "Non-AI per-capita growth", min: 0, max: 5, step: 0.25, unit: "%/yr", help: "Growth in non-AI electricity use per person (electrification of heat, transport, industry). Total non-AI demand also rises with population, so it responds to the population growth knob too." },
     ],
   },
